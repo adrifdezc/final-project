@@ -3,6 +3,7 @@ const router = express.Router();
 const mongoose = require("mongoose");
 
 const Project = require("../models/Project.model");
+const Cocktail = require("../models/Cocktail.model")
 const Task = require("../models/Task.model");
 
 //  POST /api/projects  -  Creates a new project
@@ -23,13 +24,22 @@ router.get("/projects", (req, res, next) => {
 });
 
 //  GET /api/projects/:projectId -  Retrieves a specific project by id
-router.get("/projects/:projectId", (req, res, next) => {
-  const { projectId } = req.params;
+// router.get("/projects/:projectId", (req, res, next) => {
+//   const { projectId } = req.params;
 
-  if (!mongoose.Types.ObjectId.isValid(projectId)) {
+//   if (!mongoose.Types.ObjectId.isValid(projectId)) {
+//     res.status(400).json({ message: "Specified id is not valid" });
+//     return;
+//   }
+
+  router.get("/cocktails/:cocktailId", (req, res, next) => {
+  const { cocktailId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(cocktailId)) {
     res.status(400).json({ message: "Specified id is not valid" });
     return;
   }
+  
 
   // Each Project document has `tasks` array holding `_id`s of Task documents
   // We use .populate() method to get swap the `_id`s for the actual Task documents
