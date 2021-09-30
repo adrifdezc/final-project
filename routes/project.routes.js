@@ -16,21 +16,13 @@ router.post("/projects", (req, res, next) => {
 });
 
 //  GET /api/projects -  Retrieves all of the projects
-router.get("/projects", (req, res, next) => {
-  Project.find()
-    .populate("tasks")
-    .then((allProjects) => res.json(allProjects))
+router.get("/profile", (req, res, next) => {
+  Cocktail.find()
+    .populate("favorites")
+    .then((allCocktails) => res.json(allCocktails))
     .catch((err) => res.json(err));
 });
 
-//  GET /api/projects/:projectId -  Retrieves a specific project by id
-// router.get("/projects/:projectId", (req, res, next) => {
-//   const { projectId } = req.params;
-
-//   if (!mongoose.Types.ObjectId.isValid(projectId)) {
-//     res.status(400).json({ message: "Specified id is not valid" });
-//     return;
-//   }
 
   router.get("/cocktails/:cocktailId", (req, res, next) => {
   const { cocktailId } = req.params;
