@@ -33,13 +33,9 @@ router.post("/add-favorite",  (req, res) => {
   console.log(`Query: `, query);
     const idToCheck = req.body.idDrink;
     Cocktail.find({ idDrink: idToCheck }).then((cocktailArray) => {
-      console.log(`reqpayload:`, req.payload)
 
       Cocktail.create(query) //Añade cocktail a la coleccion cocktail
         .then((result) => {
-          console.log(`Details to add: `, result)
-          console.log(`Result: `, result)
-          console.log(`REQHEADERS`, req.headers)
 
           User.
           findByIdAndUpdate(req.body.user._id, {$push: { favorites: result._id }}) //CANT FIND _id IN USER
@@ -50,5 +46,28 @@ router.post("/add-favorite",  (req, res) => {
         .catch((err) => console.log(err));
     });
 });
+
+// router.get("/profile/:id", (req, res, next) => {
+//   console.log(`reqparams`, req.params.id);
+//   console.log(`reqbody`, req.body);
+//   console.log(`Headers`, req.payload)
+//   User.findById(req.params.id)
+//     .populate("favorites")
+//     .then((allFavorites) => res.json(allFavorites))
+//     .catch((err) => res.json(err));
+// });
+router.post("/profile", (req, res, next) => {
+  console.log(`reqparams`, req.params.id);
+  console.log(`reqbody`, req.body);
+  console.log(`Headers`, req.payload);
+  User.findById(req.body.user._id)
+    .populate("favorites")
+    .then((allFavorites) => 
+    res.json(allFavorites)
+    )
+    .catch((err) => res.json(err));
+});
+
+
 
 module.exports = router;
