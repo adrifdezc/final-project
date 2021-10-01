@@ -15,24 +15,7 @@ router.post("/projects", (req, res, next) => {
     .catch((err) => res.json(err));
 });
 
-// //  GET /api/projects -  Retrieves all of the projects
-// router.get("/projects", (req, res, next) => {
-//   Project.find()
-//     .populate("tasks")
-//     .then((allProjects) => res.json(allProjects))
-//     .catch((err) => res.json(err));
-// });
 
-
-
-//  GET /api/projects/:projectId -  Retrieves a specific project by id
-// router.get("/projects/:projectId", (req, res, next) => {
-//   const { projectId } = req.params;
-
-//   if (!mongoose.Types.ObjectId.isValid(projectId)) {
-//     res.status(400).json({ message: "Specified id is not valid" });
-//     return;
-//   }
 
   router.get("/cocktails/:cocktailId", (req, res, next) => {
   const { cocktailId } = req.params;
@@ -65,22 +48,8 @@ router.put("/projects/:projectId", (req, res, next) => {
     .catch((error) => res.json(error));
 });
 
-// DELETE  /api/projects/:projectId  -  Deletes a specific project by id
-router.delete("/projects/:projectId", (req, res, next) => {
-  const { projectId } = req.params;
 
-  if (!mongoose.Types.ObjectId.isValid(projectId)) {
-    res.status(400).json({ message: "Specified id is not valid" });
-    return;
-  }
 
-  Project.findByIdAndRemove(projectId)
-    .then(() =>
-      res.json({
-        message: `Project with ${projectId} is removed successfully.`,
-      })
-    )
-    .catch((error) => res.json(error));
-});
+
 
 module.exports = router;

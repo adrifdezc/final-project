@@ -5,10 +5,10 @@ const mongoose = require("mongoose");
 const { isAuthenticated } = require("./../middleware/jwt.middleware.js");
 
 const Cocktail = require("../models/Cocktail.model");
-const User = require("../models/User.model")
+const User = require("../models/User.model");
 
-router.post("/add-favorite",  (req, res) => {
-  const query = {
+router.post("/add-favorite", (req, res) => {
+  const query = ({
     idDrink,
     strDrink,
     strCategory,
@@ -29,45 +29,40 @@ router.post("/add-favorite",  (req, res) => {
     strMeasure4,
     strMeasure5,
     strDinkThumb,
-  } = req.body.cocktail;
+  } = req.body.cocktail);
   console.log(`Query: `, query);
-    const idToCheck = req.body.idDrink;
-    Cocktail.find({ idDrink: idToCheck }).then((cocktailArray) => {
-
-      Cocktail.create(query) //Añade cocktail a la coleccion cocktail
-        .then((result) => {
-
-          User.
-          findByIdAndUpdate(req.body.user._id, {$push: { favorites: result._id }}) //CANT FIND _id IN USER
+  const idToCheck = req.body.idDrink;
+  Cocktail.find({ idDrink: idToCheck }).then((cocktailArray) => {
+    Cocktail.create(query) //Añade cocktail a la coleccion cocktail
+      .then((result) => {
+        User.findByIdAndUpdate(req.body.user._id, {
+          $push: { favorites: result._id },
+        }) //CANT FIND _id IN USER
           .then((user) => {
-            res.json(user); 
+            res.json(user);
           });
-        })
-        .catch((err) => console.log(err));
-    });
+      })
+      .catch((err) => console.log(err));
+  });
 });
 
-// router.get("/profile/:id", (req, res, next) => {
-//   console.log(`reqparams`, req.params.id);
-//   console.log(`reqbody`, req.body);
-//   console.log(`Headers`, req.payload)
-//   User.findById(req.params.id)
-//     .populate("favorites")
-//     .then((allFavorites) => res.json(allFavorites))
-//     .catch((err) => res.json(err));
-// });
 router.post("/profile", (req, res, next) => {
-  console.log(`reqparams`, req.params.id);
-  console.log(`reqbody`, req.body);
-  console.log(`Headers`, req.payload);
   User.findById(req.body.user._id)
     .populate("favorites")
-    .then((allFavorites) => 
-    res.json(allFavorites)
-    )
+    .then((allFavorites) => res.json(allFavorites))
     .catch((err) => res.json(err));
 });
 
-
+//delete from favorites
+router.post("/delete-favorite", (req, res) => {
+  const { _id } = req.body.cocktail;
+  console.log(`id`, _id);
+  User.findByIdAndUpdate(req.body.user._id, { $pull: { favorites: _id } })
+    .then((response) => {
+      console.log("response", response);
+      res.json(response);
+    })
+    .catch((err) => console.log(err));
+});
 
 module.exports = router;
