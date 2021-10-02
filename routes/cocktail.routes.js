@@ -34,24 +34,21 @@ router.post("/add-favorite", (req, res) => {
   console.log(`Query: `, query);
   console.log('REQ', req)
   const idToCheck = req.body.idDrink;
-  // Cocktail.find({ idDrink: idToCheck })
+  Cocktail.find({ idDrink: idToCheck })
   // .then((cocktailArray) => {
-  //   if (cocktailArray.includes(req.body) === false){
-  //     cocktailArray.push(req.body)
-  //     console.log("COCKTAILARRAY", cocktailArray)
-  //     Cocktail.create(query) //Añade cocktail a la coleccion cocktail
-  //       .then((result) => {
-  //         User.findByIdAndUpdate(req.body.user._id, {
-  //           $push: { favorites: result._id },
-            
-  //         }) //CANT FIND _id IN USER
-  //           .then((user) => {
-  //             res.json(user);
-  //           });
-  //       })
-  //       .catch((err) => console.log(err));
-  //   }
-  // });
+    // if (cocktailArray.includes(req.body) === false){
+      Cocktail.create(query) //Añade cocktail a la coleccion cocktail
+        .then((result) => {
+          User.findByIdAndUpdate(req.body.user._id, {
+            $push: { favorites: result._id },
+          }) 
+            .then((user) => {
+              res.json(user);
+            })
+        // })
+        .catch((err) => console.log(err));
+    // }
+  });
 });
 
 router.post("/profile", (req, res, next) => {
@@ -114,6 +111,28 @@ router.post("/delete-cart", (req,res)=>{
   })
   .catch((err)=> console.log(err))
 })
+
+//Creates new cocktail
+router.post("/create", (req, res, next) => {
+  const {
+    strDrink,
+    strCategory,
+    strAlcoholic,
+    strInstructions,
+  } = req.body;
+
+  Cocktail.create({
+    strDrink,
+    strCategory,
+    strAlcoholic,
+    strInstructions,
+    
+  })
+    .then((response) => {
+      console.log("New Cocktail: ", response)
+      res.json(response)})
+    .catch((err) => res.json(err));
+});
 
 
 module.exports = router;
