@@ -32,19 +32,26 @@ router.post("/add-favorite", (req, res) => {
     strDinkThumb,
   } = req.body.cocktail);
   console.log(`Query: `, query);
+  console.log('REQ', req)
   const idToCheck = req.body.idDrink;
-  Cocktail.find({ idDrink: idToCheck }).then((cocktailArray) => {
-    Cocktail.create(query) //Añade cocktail a la coleccion cocktail
-      .then((result) => {
-        User.findByIdAndUpdate(req.body.user._id, {
-          $push: { favorites: result._id },
-        }) //CANT FIND _id IN USER
-          .then((user) => {
-            res.json(user);
-          });
-      })
-      .catch((err) => console.log(err));
-  });
+  // Cocktail.find({ idDrink: idToCheck })
+  // .then((cocktailArray) => {
+  //   if (cocktailArray.includes(req.body) === false){
+  //     cocktailArray.push(req.body)
+  //     console.log("COCKTAILARRAY", cocktailArray)
+  //     Cocktail.create(query) //Añade cocktail a la coleccion cocktail
+  //       .then((result) => {
+  //         User.findByIdAndUpdate(req.body.user._id, {
+  //           $push: { favorites: result._id },
+            
+  //         }) //CANT FIND _id IN USER
+  //           .then((user) => {
+  //             res.json(user);
+  //           });
+  //       })
+  //       .catch((err) => console.log(err));
+  //   }
+  // });
 });
 
 router.post("/profile", (req, res, next) => {
@@ -83,6 +90,7 @@ router.post("/add-ingredient", isAuthenticated, (req,res)=>{
   })
 })
 
+//show cart
 router.post("/cart", (req, res, next) => {
   User.findById(req.body.user._id)
     .populate("shopping")
@@ -91,6 +99,21 @@ router.post("/cart", (req, res, next) => {
       res.json(allIngredients)})
     .catch((err) => res.json(err));
 });
+
+//delete from cart
+router.post("/delete-cart", (req,res)=>{
+  console.log("REQBODY", req.body.ingredient)
+  const {_id} = req.body.ingredient;
+  console.log("ID", _id)
+  User.findByIdAndUpdate(req.body.user._id, {
+    $pull:{ shopping: _id}
+  })
+  .then((response)=>{
+    console.log("DELETE CART RESPONSE",response);
+    res.json(response)
+  })
+  .catch((err)=> console.log(err))
+})
 
 
 module.exports = router;
