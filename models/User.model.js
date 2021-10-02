@@ -14,7 +14,7 @@ const userSchema = new Schema({
   shopping: [
     {
       type: Schema.Types.ObjectId,
-      ref: "Cocktail",
+      ref: "Ingredient",
     },
   ],
 });

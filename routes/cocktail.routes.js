@@ -6,6 +6,7 @@ const { isAuthenticated } = require("./../middleware/jwt.middleware.js");
 
 const Cocktail = require("../models/Cocktail.model");
 const User = require("../models/User.model");
+const Ingredient = require("../models/Ingredient.model")
 
 router.post("/add-favorite", (req, res) => {
   const query = ({
@@ -64,5 +65,32 @@ router.post("/delete-favorite", (req, res) => {
     })
     .catch((err) => console.log(err));
 });
+
+
+
+
+router.post("/add-ingredient", isAuthenticated, (req,res)=>{
+  console.log(`ReqbodyING`, req.body)
+  console.log("Payload", req.payload);
+  Ingredient.create(req.body)
+  .then((result)=>{
+    User.findByIdAndUpdate(req.payload._id, {
+      $push: {shopping: result._id}
+    })
+    .then(()=>{
+      res.status(200)
+    })
+  })
+})
+
+router.post("/cart", (req, res, next) => {
+  User.findById(req.body.user._id)
+    .populate("shopping")
+    .then((allIngredients) => {
+      console.log(`Ingredients`, allIngredients)
+      res.json(allIngredients)})
+    .catch((err) => res.json(err));
+});
+
 
 module.exports = router;
