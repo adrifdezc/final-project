@@ -35,19 +35,37 @@ router.post("/add-favorite", (req, res) => {
 
   console.log("idToCheck", idDrink);
   console.log("QUERY", query)
-  Cocktail.find({ idDrink: idDrink }).then((cocktailArray) => {
-    console.log("cocktailArray", cocktailArray);
-    if ( cocktailArray.length === 0){
+  Cocktail.findOne({ idDrink: idDrink}).then((cocktail) => {
+    console.log("cocktail", cocktail);
+    if ( !cocktail){
       Cocktail.create(query)
       .then((result) => {
-        User.findByIdAndUpdate(req.body.user._id, {
-          $push: { favorites: result._id },
-        })
+        User.findByIdAndUpdate(
+          req.body.user._id,
+          {
+            $push: { favorites: result._id },
+          },
+          { new: true }
+        )
+          .populate("favorites")
           .then((user) => {
             res.json(user);
           })
           .catch((err) => console.log(err));
       });
+    }else{
+      User.findByIdAndUpdate(
+        req.body.user._id,
+        {
+          $push: { favorites: cocktail._id },
+        },
+        { new: true }
+      )
+        .populate("favorites")
+        .then((user) => {
+          res.json(user);
+        })
+        .catch((err) => console.log(err));
     }
   });
 });
@@ -61,28 +79,29 @@ router.post("/profile", (req, res, next) => {
 
 //delete from favorites
 router.post("/delete-favorite", (req, res) => {
-  const { _id } = req.body.cocktail;
   console.log("REQBODYCOCKTAIL", req.body.cocktail);
-  console.log(`id`, _id);
   Cocktail.find({ idDrink: req.body.cocktail.idDrink }).then((response) => {
     let idNeed = response[0]._id;
     console.log("ONE ONLY", response);
+    User.findByIdAndUpdate(req.body.user._id, { $pull: { favorites: idNeed } })
+      .populate("favorites")
+      .then((response) => {
+        console.log("response", response);
+        res.json(response);
+      })
+      .catch((err) => console.log(err));
   });
-  User.findByIdAndUpdate(req.body.user._id, { $pull: { favorites: _id } })
-    .then((response) => {
-      console.log("response", response);
-      res.json(response);
-    })
-    .catch((err) => console.log(err));
 });
 
 router.post("/add-ingredient", isAuthenticated, (req, res) => {
   Ingredient.create(req.body).then((result) => {
     User.findByIdAndUpdate(req.payload._id, {
       $push: { shopping: result._id },
-    }).then(() => {
-      res.status(200);
-    });
+    })
+      .populate("favorites")
+      .then(() => {
+        res.status(200);
+      });
   });
 });
 
@@ -131,5 +150,12 @@ router.post("/create-cocktail", (req, res, next) => {
 router.get("/create-cocktail", (req, res) => {
   Created.find({}).then((response) => res.json(response));
 });
+
+// router.get("/check-api-cocktail-is-favorites/:APIId", (req,res)=>{
+//   const { APIId} = req.params;
+//   Cocktail
+//   .findOne({ idDrink: APIId})
+//   .then((cocktail)=>console.log(cocktail))
+// })
 
 module.exports = router;
