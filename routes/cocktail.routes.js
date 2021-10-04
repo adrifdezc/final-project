@@ -32,24 +32,24 @@ router.post("/add-favorite", (req, res) => {
     strMeasure5,
     strDinkThumb,
   } = req.body.cocktail);
-  console.log(`Query: `, query);
-  console.log("REQ", req);
-  const idToCheck = req.body.idDrink;
-  Cocktail.find({ idDrink: idToCheck });
-  // .then((cocktailArray) => {
-  // if (cocktailArray.includes(req.body) === false){
-  Cocktail.create(query) //Añade cocktail a la coleccion cocktail
-    .then((result) => {
-      User.findByIdAndUpdate(req.body.user._id, {
-        $push: { favorites: result._id },
-      })
-        .then((user) => {
-          res.json(user);
+
+  console.log("idToCheck", idDrink);
+  console.log("QUERY", query)
+  Cocktail.find({ idDrink: idDrink }).then((cocktailArray) => {
+    console.log("cocktailArray", cocktailArray);
+    if ( cocktailArray.length === 0){
+      Cocktail.create(query)
+      .then((result) => {
+        User.findByIdAndUpdate(req.body.user._id, {
+          $push: { favorites: result._id },
         })
-        // })
-        .catch((err) => console.log(err));
-      // }
-    });
+          .then((user) => {
+            res.json(user);
+          })
+          .catch((err) => console.log(err));
+      });
+    }
+  });
 });
 
 router.post("/profile", (req, res, next) => {
@@ -62,7 +62,12 @@ router.post("/profile", (req, res, next) => {
 //delete from favorites
 router.post("/delete-favorite", (req, res) => {
   const { _id } = req.body.cocktail;
+  console.log("REQBODYCOCKTAIL", req.body.cocktail);
   console.log(`id`, _id);
+  Cocktail.find({ idDrink: req.body.cocktail.idDrink }).then((response) => {
+    let idNeed = response[0]._id;
+    console.log("ONE ONLY", response);
+  });
   User.findByIdAndUpdate(req.body.user._id, { $pull: { favorites: _id } })
     .then((response) => {
       console.log("response", response);
@@ -72,8 +77,6 @@ router.post("/delete-favorite", (req, res) => {
 });
 
 router.post("/add-ingredient", isAuthenticated, (req, res) => {
-  console.log(`ReqbodyING`, req.body);
-  console.log("Payload", req.payload);
   Ingredient.create(req.body).then((result) => {
     User.findByIdAndUpdate(req.payload._id, {
       $push: { shopping: result._id },
@@ -98,19 +101,17 @@ router.post("/cart", (req, res, next) => {
 router.post("/delete-cart", (req, res) => {
   console.log("REQBODY", req.body.ingredient);
   const { _id } = req.body.ingredient;
-  console.log("ID", _id);
   User.findByIdAndUpdate(req.body.user._id, {
     $pull: { shopping: _id },
   })
     .then((response) => {
-      console.log("DELETE CART RESPONSE", response);
       res.json(response);
     })
     .catch((err) => console.log(err));
 });
 
 //Creates new cocktail
-router.post("/create", (req, res, next) => {
+router.post("/create-cocktail", (req, res, next) => {
   const { strDrink, strCategory, strAlcoholic, strInstructions } = req.body;
 
   Created.create({
@@ -127,9 +128,8 @@ router.post("/create", (req, res, next) => {
 });
 
 //Fetch created Cocktails from collection Created
-router.get("/create", (req, res)=>{
-  Created.find({})
-  .then((response)=>console.log("Created object",response))
-})
+router.get("/create-cocktail", (req, res) => {
+  Created.find({}).then((response) => res.json(response));
+});
 
 module.exports = router;
