@@ -34,12 +34,11 @@ router.post("/add-favorite", (req, res) => {
   } = req.body.cocktail);
 
   console.log("idToCheck", idDrink);
-  console.log("QUERY", query)
-  Cocktail.findOne({ idDrink: idDrink}).then((cocktail) => {
+  console.log("QUERY", query);
+  Cocktail.findOne({ idDrink: idDrink }).then((cocktail) => {
     console.log("cocktail", cocktail);
-    if ( !cocktail){
-      Cocktail.create(query)
-      .then((result) => {
+    if (!cocktail) {
+      Cocktail.create(query).then((result) => {
         User.findByIdAndUpdate(
           req.body.user._id,
           {
@@ -53,7 +52,7 @@ router.post("/add-favorite", (req, res) => {
           })
           .catch((err) => console.log(err));
       });
-    }else{
+    } else {
       User.findByIdAndUpdate(
         req.body.user._id,
         {
