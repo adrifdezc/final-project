@@ -128,6 +128,8 @@ router.post("/create", (req, res, next) => {
 
 //Fetch created Cocktails from collection Created
 router.get("/create", (req, res)=>{
+  Created.find({})
+  .then((response)=>console.log("Created object",response))
 })
 
 module.exports = router;

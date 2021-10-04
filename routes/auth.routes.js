@@ -121,11 +121,18 @@ router.get("/verify", isAuthenticated, (req, res, next) => {
   // isAuthenticated middleware and made available on `req.payload`
   console.log(`req.payload`, req.payload);
   console.log(`REQHEADERS`, req.headers);
-
-  // Send back the object with user data
-  // previously set as the token payload
-  req.payload.authorization = req.headers.authorization;
-  res.status(200).json(req.payload);
+  console.log('ID', req.payload._id)
+  User.findById(req.payload._id)
+    .populate("favorites")
+    .then((response)=>{
+      console.log("Response", response)
+      // Send back the object with user data
+      // previously set as the token payload
+      req.payload.authorization = req.headers.authorization;
+      res.status(200).json({
+        token: req.payload,
+        userData: response});
+    })
 });
 
 module.exports = router;
