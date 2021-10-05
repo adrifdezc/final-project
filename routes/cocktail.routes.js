@@ -78,14 +78,15 @@ router.post("/profile", (req, res, next) => {
 
 //delete from favorites
 router.post("/delete-favorite", (req, res) => {
-  console.log("REQBODYCOCKTAIL", req.body.cocktail);
   Cocktail.find({ idDrink: req.body.cocktail.idDrink }).then((response) => {
     let idNeed = response[0]._id;
-    console.log("ONE ONLY", response);
-    User.findByIdAndUpdate(req.body.user._id, { $pull: { favorites: idNeed } })
+    User.findByIdAndUpdate(
+      req.body.user._id,
+      { $pull: { favorites: idNeed } },
+      { new: true }
+    )
       .populate("favorites")
       .then((response) => {
-        console.log("response", response);
         res.json(response);
       })
       .catch((err) => console.log(err));
@@ -96,10 +97,10 @@ router.post("/add-ingredient", isAuthenticated, (req, res) => {
   Ingredient.create(req.body).then((result) => {
     User.findByIdAndUpdate(req.payload._id, {
       $push: { shopping: result._id },
-    })
+    }, {new: true})
       .populate("favorites")
-      .then(() => {
-        res.status(200);
+      .then((response) => {
+        res.status(200).json( response);
       });
   });
 });
@@ -109,7 +110,6 @@ router.post("/cart", (req, res, next) => {
   User.findById(req.body.user._id)
     .populate("shopping")
     .then((allIngredients) => {
-      console.log(`Ingredients`, allIngredients);
       res.json(allIngredients);
     })
     .catch((err) => res.json(err));
@@ -117,11 +117,14 @@ router.post("/cart", (req, res, next) => {
 
 //delete from cart
 router.post("/delete-cart", (req, res) => {
-  console.log("REQBODY", req.body.ingredient);
   const { _id } = req.body.ingredient;
-  User.findByIdAndUpdate(req.body.user._id, {
-    $pull: { shopping: _id },
-  })
+  User.findByIdAndUpdate(
+    req.body.user._id,
+    {
+      $pull: { shopping: _id },
+    },
+    { new: true }
+  )
     .then((response) => {
       res.json(response);
     })
@@ -139,7 +142,6 @@ router.post("/create-cocktail", (req, res, next) => {
     strInstructions,
   })
     .then((response) => {
-      console.log("New Cocktail: ", response);
       res.json(response);
     })
     .catch((err) => res.json(err));
@@ -150,11 +152,6 @@ router.get("/create-cocktail", (req, res) => {
   Created.find({}).then((response) => res.json(response));
 });
 
-// router.get("/check-api-cocktail-is-favorites/:APIId", (req,res)=>{
-//   const { APIId} = req.params;
-//   Cocktail
-//   .findOne({ idDrink: APIId})
-//   .then((cocktail)=>console.log(cocktail))
-// })
+
 
 module.exports = router;
