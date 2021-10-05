@@ -152,6 +152,15 @@ router.get("/create-cocktail", (req, res) => {
   Created.find({}).then((response) => res.json(response));
 });
 
+router.post("/delete-created", (req,res)=>{
+  const idNeeded = req.body.cocktail
+  Created.findOneAndDelete({ _id: idNeeded})
+  .then((response)=>{
+    res.json(response);
+  })
+  .catch((err)=>console.log(err))
+})
+
 
 
 module.exports = router;
